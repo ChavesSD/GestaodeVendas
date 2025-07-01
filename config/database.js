@@ -14,7 +14,6 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 5000, // Timeout de 5 segundos
       socketTimeoutMS: 45000, // Timeout de socket de 45 segundos
       family: 4, // Usar IPv4
-      bufferMaxEntries: 0, // Desabilitar mongoose buffering
       bufferCommands: false, // Desabilitar mongoose buffering
     };
 
