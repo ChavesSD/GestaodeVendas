@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const { body, param, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const mongoose = require('mongoose');
 
 // Importações MongoDB
 const { connectDB, migrarDadosExistentes } = require('./database');
@@ -91,14 +92,27 @@ let usandoMongoDB = false;
 const inicializarBanco = async () => {
   try {
     console.log('🔄 Inicializando conexão com MongoDB...');
+    console.log('🔍 MONGO_URI:', process.env.MONGO_URI ? 'Configurada' : 'NÃO configurada');
+    
     const conexao = await connectDB();
     
     if (conexao) {
       usandoMongoDB = true;
       console.log('✅ MongoDB inicializado com sucesso!');
+      console.log('✅ usandoMongoDB =', usandoMongoDB);
+      
+      // Verificar se há documentos no banco
+      try {
+        const vendedoresCount = await Vendedor.countDocuments();
+        const vendasCount = await Venda.countDocuments();
+        console.log(`📊 Documentos existentes: ${vendedoresCount} vendedores, ${vendasCount} vendas`);
+      } catch (countError) {
+        console.error('❌ Erro ao contar documentos:', countError.message);
+      }
       
       // Migrar dados existentes se houver
       if (vendedores.length > 0 || vendas.length > 0) {
+        console.log(`🔄 Migrando dados: ${vendedores.length} vendedores, ${vendas.length} vendas`);
         await migrarDadosExistentes(vendedores, vendas);
         // Limpar arrays em memória após migração
         vendedores = [];
@@ -106,10 +120,12 @@ const inicializarBanco = async () => {
       }
     } else {
       console.log('⚠️  Usando dados em memória como fallback');
+      console.log('⚠️  usandoMongoDB =', usandoMongoDB);
     }
   } catch (error) {
-    console.error('❌ Erro ao inicializar banco:', error);
+    console.error('❌ Erro ao inicializar banco:', error.message);
     console.log('⚠️  Continuando com dados em memória');
+    console.log('⚠️  usandoMongoDB =', usandoMongoDB);
   }
 };
 
@@ -130,6 +146,40 @@ function filtrarVendasPorMes(vendasArray, mes) {
 // Rotas para servir arquivos estáticos
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Rota de debug para verificar status do MongoDB
+app.get('/api/debug/status', async (req, res) => {
+    try {
+        const status = {
+            usandoMongoDB: usandoMongoDB,
+            mongoDBStatus: 'disconnected',
+            vendedoresMemoria: vendedores.length,
+            vendasMemoria: vendas.length,
+            vendedoresMongoDB: 0,
+            vendasMongoDB: 0
+        };
+
+        if (usandoMongoDB) {
+            try {
+                // Verificar conexão
+                const mongooseStatus = mongoose.connection.readyState;
+                status.mongoDBStatus = mongooseStatus === 1 ? 'connected' : 'disconnected';
+                
+                // Contar documentos no MongoDB
+                if (mongooseStatus === 1) {
+                    status.vendedoresMongoDB = await Vendedor.countDocuments();
+                    status.vendasMongoDB = await Venda.countDocuments();
+                }
+            } catch (error) {
+                status.mongoError = error.message;
+            }
+        }
+
+        res.json(status);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // API Routes
