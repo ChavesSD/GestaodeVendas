@@ -18,16 +18,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware de Segurança
 app.use(helmet({
-    contentSecurityPolicy: {
-        directives: {
-            defaultSrc: ["'self'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-            scriptSrc: ["'self'", "'unsafe-inline'"],
-            imgSrc: ["'self'", "data:", "https:"],
-            connectSrc: ["'self'", "https://www.receitaws.com.br", "https://viacep.com.br"],
-            fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
-        },
-    },
+    contentSecurityPolicy: false, // Desabilitar CSP temporariamente para Railway
 }));
 
 // Rate Limiting
@@ -57,7 +48,7 @@ app.use('/api/vendedores/login', loginLimiter);
 // CORS configuração mais restritiva
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? ['https://seu-dominio.com'] // Em produção, especificar domínios permitidos
+        ? ['https://gestaodevendas-production-da9a.up.railway.app'] // Domínio do Railway
         : ['http://localhost:3000', 'http://127.0.0.1:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
