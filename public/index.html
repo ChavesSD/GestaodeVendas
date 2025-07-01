@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Vendas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <h1><i class="fas fa-chart-line"></i> Gestão de Vendas</h1>
+                <nav class="nav">
+                    <button id="btn-home" class="nav-btn active">
+                        <i class="fas fa-home"></i> Início
+                    </button>
+                    <button id="btn-vendedores" class="nav-btn">
+                        <i class="fas fa-users"></i> Vendedores
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <div class="container">
+                <!-- Página Inicial -->
+                <section id="page-home" class="page active">
+                    <div class="welcome-section">
+                        <h2 id="home-title">Dashboard Geral </h2>
+                        <p>Gerencie seus vendedores e acompanhe o desempenho de vendas em tempo real.</p>
+                    </div>
+
+                    <div class="dashboard-filters">
+                        <div class="filter-group">
+                            <label>
+                                <i class="fas fa-calendar-alt"></i> Filtrar por Período:
+                            </label>
+                            <div class="filter-inputs">
+                                <select id="filtro-mes-home" class="filter-select">
+                                    <option value="">Todos os Meses</option>
+                                    <option value="01">Janeiro</option>
+                                    <option value="02">Fevereiro</option>
+                                    <option value="03">Março</option>
+                                    <option value="04">Abril</option>
+                                    <option value="05">Maio</option>
+                                    <option value="06">Junho</option>
+                                    <option value="07">Julho</option>
+                                    <option value="08">Agosto</option>
+                                    <option value="09">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                                <select id="filtro-ano-home" class="filter-select">
+                                    <option value="">Todos os Anos</option>
+                                    <option value="2030">2030</option>
+                                    <option value="2029">2029</option>
+                                    <option value="2028">2028</option>
+                                    <option value="2027">2027</option>
+                                    <option value="2026">2026</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2020">2020</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <button id="btn-aplicar-filtro-home" class="btn btn-primary btn-sm">
+                                <i class="fas fa-filter"></i> Aplicar Filtro
+                            </button>
+                            <button id="btn-limpar-filtro-home" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-times"></i> Limpar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-stats" id="home-stats">
+                        <!-- Estatísticas gerais serão carregadas aqui -->
+                    </div>
+                </section>
+
+                <!-- Página de Vendedores -->
+                <section id="page-vendedores" class="page">
+                    <div class="page-header">
+                        <h2>Gerenciar Vendedores</h2>
+                        <button id="btn-novo-vendedor" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Novo Vendedor
+                        </button>
+                    </div>
+
+                    <div class="vendedores-grid" id="vendedores-grid">
+                        <!-- Vendedores serão carregados aqui -->
+                    </div>
+                </section>
+
+                <!-- Página de Dashboard do Vendedor -->
+                <section id="page-dashboard" class="page">
+                    <div class="dashboard-header">
+                        <button id="btn-voltar" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </button>
+                        <h2 id="dashboard-title">Dashboard do Vendedor</h2>
+                        <button id="btn-nova-venda" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Nova Venda
+                        </button>
+                    </div>
+
+                    <div class="dashboard-filters">
+                        <div class="filter-group">
+                            <label>
+                                <i class="fas fa-calendar-alt"></i> Filtrar por Período:
+                            </label>
+                            <div class="filter-inputs">
+                                <select id="filtro-mes" class="filter-select">
+                                    <option value="">Todos os Meses</option>
+                                    <option value="01">Janeiro</option>
+                                    <option value="02">Fevereiro</option>
+                                    <option value="03">Março</option>
+                                    <option value="04">Abril</option>
+                                    <option value="05">Maio</option>
+                                    <option value="06">Junho</option>
+                                    <option value="07">Julho</option>
+                                    <option value="08">Agosto</option>
+                                    <option value="09">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                                <select id="filtro-ano" class="filter-select">
+                                    <option value="">Todos os Anos</option>
+                                    <option value="2030">2030</option>
+                                    <option value="2029">2029</option>
+                                    <option value="2028">2028</option>
+                                    <option value="2027">2027</option>
+                                    <option value="2026">2026</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2020">2020</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="filter-group">
+                            <button id="btn-aplicar-filtro" class="btn btn-primary btn-sm">
+                                <i class="fas fa-filter"></i> Aplicar Filtro
+                            </button>
+                            <button id="btn-limpar-filtro" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-times"></i> Limpar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-stats" id="dashboard-stats">
+                        <!-- Estatísticas do vendedor -->
+                    </div>
+
+                    <div class="vendas-section">
+                        <h3>Vendas Realizadas</h3>
+                        <div class="table-container">
+                            <table id="vendas-table" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Cliente</th>
+                                        <th>CPF/CNPJ</th>
+                                        <th>Plano</th>
+                                        <th>Valor</th>
+                                        <th>Data Venda</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Vendas serão carregadas aqui -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para Novo Vendedor -->
+    <div id="modal-vendedor" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo Vendedor</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="form-vendedor">
+                <div class="form-group">
+                    <label for="vendedor-nome">Nome Completo:</label>
+                    <input type="text" id="vendedor-nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="vendedor-email">E-mail:</label>
+                    <input type="email" id="vendedor-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="vendedor-telefone">Telefone:</label>
+                    <input type="tel" id="vendedor-telefone" required>
+                </div>
+                <div class="form-group">
+                    <label for="vendedor-senha">Senha de Acesso:</label>
+                    <input type="password" id="vendedor-senha" required placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group">
+                    <label for="vendedor-confirmar-senha">Confirmar Senha:</label>
+                    <input type="password" id="vendedor-confirmar-senha" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Login do Vendedor -->
+    <div id="modal-login-vendedor" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="login-vendedor-title">Acesso ao Dashboard</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="form-login-vendedor">
+                <input type="hidden" id="login-vendedor-id">
+                <div class="form-group">
+                    <label for="login-senha">Senha de Acesso:</label>
+                    <input type="password" id="login-senha" required placeholder="Digite sua senha">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Acessar Dashboard
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Nova Venda -->
+    <div id="modal-venda" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="modal-venda-title">Nova Venda</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="form-venda">
+                <input type="hidden" id="venda-id">
+                <input type="hidden" id="venda-vendedor-id">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="venda-codigo">Código:</label>
+                        <input type="text" id="venda-codigo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="venda-nome">Nome Completo / Razão Social:</label>
+                        <input type="text" id="venda-nome" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="venda-cpf-cnpj">CPF/CNPJ:</label>
+                        <div class="input-with-button">
+                            <input type="text" id="venda-cpf-cnpj" required placeholder="Digite o CNPJ para buscar automaticamente">
+                            <button type="button" id="btn-consultar-cnpj" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-search"></i> Consultar CNPJ
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="venda-nascimento">Data de Nascimento:</label>
+                        <input type="date" id="venda-nascimento">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="venda-plano">Plano Negociado:</label>
+                        <input type="text" id="venda-plano" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="venda-contato">Contato:</label>
+                        <input type="text" id="venda-contato" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="venda-cep">CEP:</label>
+                        <div class="input-with-button">
+                            <input type="text" id="venda-cep" placeholder="Digite o CEP para buscar endereço">
+                            <button type="button" id="btn-consultar-cep" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="venda-endereco">Endereço Completo:</label>
+                        <textarea id="venda-endereco" rows="2" placeholder="Endereço será preenchido automaticamente pelo CEP"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="venda-valor">Valor (R$):</label>
+                        <input type="number" id="venda-valor" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="venda-data-venda">Data da Venda:</label>
+                        <input type="date" id="venda-data-venda" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="venda-data-instalacao">Data da Instalação:</label>
+                        <input type="date" id="venda-data-instalacao">
+                    </div>
+                    <div class="form-group">
+                        <label for="venda-status">Status:</label>
+                        <select id="venda-status" required>
+                            <option value="Pendente">Pendente</option>
+                            <option value="Em Andamento">Em Andamento</option>
+                            <option value="Instalado">Instalado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="venda-observacoes">Observações:</label>
+                    <textarea id="venda-observacoes" rows="3"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 
