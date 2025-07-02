@@ -523,10 +523,10 @@ function renderDashboardStats(stats) {
     const container = document.getElementById('dashboard-stats');
     
     // Calcular estatísticas dos novos status
-    const cancelados = stats.vendasPorStatus['Cancelado'] || 0;
-    const pendentes = stats.vendasPorStatus['Pendente'] || 0;
-    const conectados = stats.vendasPorStatus['Instalado'] || 0;
-    const emAndamento = stats.vendasPorStatus['Em Andamento'] || 0;
+    const cancelados = stats.vendasPorStatus['CANCELADO'] || 0;
+    const pendentes = stats.vendasPorStatus['PENDENTE'] || 0;
+    const conectados = stats.vendasPorStatus['CONECTADO'] || 0;
+    const infra = stats.vendasPorStatus['INFRA'] || 0;
     
     container.innerHTML = `
         <div class="dashboard-stat total">
@@ -584,7 +584,7 @@ function renderDashboardStats(stats) {
                 <i class="fas fa-cogs"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-value">${emAndamento}</div>
+                <div class="stat-value">${infra}</div>
                 <div class="stat-label">Infra</div>
             </div>
         </div>

@@ -57,11 +57,11 @@ const vendaSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Status é obrigatório'],
     enum: {
-      values: ['pendente', 'andamento', 'instalado', 'cancelado'],
-      message: 'Status deve ser: pendente, andamento, instalado ou cancelado'
+      values: ['CONECTADO', 'PENDENTE', 'INFRA', 'CANCELADO'],
+      message: 'Status deve ser: CONECTADO, PENDENTE, INFRA ou CANCELADO'
     },
-    default: 'pendente',
-    lowercase: true
+    default: 'PENDENTE',
+    uppercase: true
   },
   dataVenda: {
     type: Date,
@@ -117,7 +117,7 @@ vendaSchema.virtual('valorFormatado').get(function() {
 
 // Método para verificar se a venda pode ser editada
 vendaSchema.methods.podeSerEditada = function() {
-  return this.status !== 'cancelado' && this.status !== 'instalado';
+  return this.status !== 'CANCELADO' && this.status !== 'CONECTADO';
 };
 
 // Método para calcular dias desde a venda
@@ -170,16 +170,16 @@ vendaSchema.statics.estatisticasPorVendedor = function(vendedorId, filtroMes = n
       faturamentoTotal: { $sum: '$valor' },
       ticketMedio: { $avg: '$valor' },
       conectados: {
-        $sum: { $cond: [{ $eq: ['$status', 'instalado'] }, 1, 0] }
+        $sum: { $cond: [{ $eq: ['$status', 'CONECTADO'] }, 1, 0] }
       },
       pendentes: {
-        $sum: { $cond: [{ $eq: ['$status', 'pendente'] }, 1, 0] }
+        $sum: { $cond: [{ $eq: ['$status', 'PENDENTE'] }, 1, 0] }
       },
-      andamento: {
-        $sum: { $cond: [{ $eq: ['$status', 'andamento'] }, 1, 0] }
+      infra: {
+        $sum: { $cond: [{ $eq: ['$status', 'INFRA'] }, 1, 0] }
       },
       cancelados: {
-        $sum: { $cond: [{ $eq: ['$status', 'cancelado'] }, 1, 0] }
+        $sum: { $cond: [{ $eq: ['$status', 'CANCELADO'] }, 1, 0] }
       }
     }
   });
@@ -216,16 +216,16 @@ vendaSchema.statics.estatisticasGerais = function(filtroMes = null) {
       faturamentoTotal: { $sum: '$valor' },
       ticketMedio: { $avg: '$valor' },
       conectados: {
-        $sum: { $cond: [{ $eq: ['$status', 'instalado'] }, 1, 0] }
+        $sum: { $cond: [{ $eq: ['$status', 'CONECTADO'] }, 1, 0] }
       },
       pendentes: {
-        $sum: { $cond: [{ $eq: ['$status', 'pendente'] }, 1, 0] }
+        $sum: { $cond: [{ $eq: ['$status', 'PENDENTE'] }, 1, 0] }
       },
-      andamento: {
-        $sum: { $cond: [{ $eq: ['$status', 'andamento'] }, 1, 0] }
+      infra: {
+        $sum: { $cond: [{ $eq: ['$status', 'INFRA'] }, 1, 0] }
       },
       cancelados: {
-        $sum: { $cond: [{ $eq: ['$status', 'cancelado'] }, 1, 0] }
+        $sum: { $cond: [{ $eq: ['$status', 'CANCELADO'] }, 1, 0] }
       },
       vendedoresAtivos: { $addToSet: '$vendedorId' }
     }

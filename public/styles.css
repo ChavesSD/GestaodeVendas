@@ -645,16 +645,16 @@ body::before {
 }
 
 .status-pendente {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.status-infra {
     background: #fff3cd;
     color: #856404;
 }
 
-.status-em-andamento {
-    background: #cce5ff;
-    color: #004085;
-}
-
-.status-instalado {
+.status-conectado {
     background: #d4edda;
     color: #155724;
 }
