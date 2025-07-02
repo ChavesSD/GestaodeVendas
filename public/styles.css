@@ -931,4 +931,81 @@ form {
     .form-actions {
         flex-direction: column;
     }
+}
+
+/* Status coloridos no select */
+.status-select option.status-conectado {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+}
+
+.status-select option.status-pendente {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+}
+
+.status-select option.status-infra {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+
+.status-select option.status-cancelado {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+}
+
+/* Container de planos */
+.plano-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.plano-container select {
+    flex: 1;
+}
+
+.plano-container input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Container de valor */
+.valor-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.valor-container input {
+    flex: 1;
+}
+
+/* Checkbox customizado para IP Fixo */
+.checkbox-group {
+    margin-top: 8px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+    user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.checkbox-label:hover {
+    color: #007bff;
+}
+
+.checkbox-label input[type="checkbox"]:checked + span {
+    color: #007bff;
+    font-weight: 500;
 } 

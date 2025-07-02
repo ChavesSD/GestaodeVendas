@@ -6,6 +6,15 @@ let vendaEditando = null;
 let filtroMesAtivo = '';
 let filtroMesAtivoHome = '';
 
+// Sistema de Planos Globais
+let planosDisponiveis = [
+    { nome: '100 MEGA', valor: 89.90 },
+    { nome: '200 MEGA', valor: 119.90 },
+    { nome: '300 MEGA', valor: 149.90 },
+    { nome: '500 MEGA', valor: 199.90 },
+    { nome: '1 GIGA', valor: 299.90 }
+];
+
 // API Base URL
 const API_BASE = '/api';
 
@@ -36,6 +45,7 @@ function initializeApp() {
     setupEventListeners();
     showPage('home');
     loadVendedores();
+    carregarPlanosNoSelect();
     
     // Aguardar um pouco para garantir que o servidor esteja pronto
     setTimeout(() => {
@@ -173,7 +183,14 @@ function showModalVenda(venda = null) {
     } else {
         form.reset();
         document.getElementById('venda-vendedor-id').value = vendedorAtual?.id || '';
+        // Data automática de hoje
         document.getElementById('venda-data-venda').value = new Date().toISOString().split('T')[0];
+        // Resetar campos especiais
+        document.getElementById('venda-ip-fixo').checked = false;
+        document.getElementById('venda-plano-custom').style.display = 'none';
+        document.getElementById('venda-valor-custom').style.display = 'none';
+        document.getElementById('venda-valor').style.display = 'block';
+        document.getElementById('venda-valor').readOnly = true;
     }
     
     modal.classList.add('active');
@@ -718,16 +735,53 @@ function renderVendasTable() {
 async function handleVendaSubmit(e) {
     e.preventDefault();
     
+    const selectPlano = document.getElementById('venda-plano');
+    const inputCustom = document.getElementById('venda-plano-custom');
+    const valorInput = document.getElementById('venda-valor');
+    const valorCustomInput = document.getElementById('venda-valor-custom');
+    const ipFixoCheck = document.getElementById('venda-ip-fixo');
+    
+    // Processar plano
+    let planoFinal = '';
+    let valorFinal = 0;
+    
+    if (selectPlano.value === 'custom') {
+        // Novo plano customizado
+        const nomePlano = inputCustom.value.trim();
+        const valorPlano = parseFloat(valorCustomInput.value);
+        
+        if (!nomePlano || !valorPlano) {
+            alert('Por favor, preencha o nome e valor do novo plano.');
+            return;
+        }
+        
+        // Salvar novo plano
+        if (salvarNovoPlano(nomePlano, valorPlano)) {
+            planoFinal = nomePlano;
+            valorFinal = valorPlano;
+        } else {
+            return; // Erro ao salvar plano
+        }
+    } else {
+        planoFinal = selectPlano.value;
+        valorFinal = parseFloat(valorInput.value);
+    }
+    
+    // Adicionar IP Fixo se marcado
+    if (ipFixoCheck.checked) {
+        planoFinal += ' + IP Fixo';
+    }
+    
     const formData = {
         vendedorId: document.getElementById('venda-vendedor-id').value,
         codigo: document.getElementById('venda-codigo').value,
         nomeCompleto: document.getElementById('venda-nome').value,
         cpfCnpj: document.getElementById('venda-cpf-cnpj').value,
         dataNascimento: document.getElementById('venda-nascimento').value,
-        planoNegociado: document.getElementById('venda-plano').value,
+        planoNegociado: planoFinal,
         contato: document.getElementById('venda-contato').value,
         endereco: document.getElementById('venda-endereco').value,
-        valor: document.getElementById('venda-valor').value,
+        valor: valorFinal,
         dataVenda: document.getElementById('venda-data-venda').value,
         dataInstalacao: document.getElementById('venda-data-instalacao').value,
         status: document.getElementById('venda-status').value,
@@ -849,6 +903,125 @@ function renderHomeStats(data) {
             </div>
         </div>
     `).join('');
+}
+
+// Funções do Sistema de Planos
+function carregarPlanosNoSelect() {
+    const selectPlano = document.getElementById('venda-plano');
+    if (!selectPlano) return;
+    
+    // Limpar opções existentes
+    selectPlano.innerHTML = '<option value="">Selecione um plano</option>';
+    
+    // Adicionar planos disponíveis
+    planosDisponiveis.forEach(plano => {
+        const option = document.createElement('option');
+        option.value = plano.nome;
+        option.textContent = `${plano.nome} - R$ ${formatCurrency(plano.valor)}`;
+        option.dataset.valor = plano.valor;
+        selectPlano.appendChild(option);
+    });
+    
+    // Adicionar opção para criar novo plano
+    const optionCustom = document.createElement('option');
+    optionCustom.value = 'custom';
+    optionCustom.textContent = '🆕 Criar Novo Plano';
+    selectPlano.appendChild(optionCustom);
+}
+
+function atualizarValorPlano() {
+    const selectPlano = document.getElementById('venda-plano');
+    const inputCustom = document.getElementById('venda-plano-custom');
+    const valorInput = document.getElementById('venda-valor');
+    const valorCustomInput = document.getElementById('venda-valor-custom');
+    
+    if (selectPlano.value === 'custom') {
+        // Mostrar campos customizados
+        inputCustom.style.display = 'block';
+        inputCustom.required = true;
+        valorInput.style.display = 'none';
+        valorCustomInput.style.display = 'block';
+        valorCustomInput.required = true;
+        valorInput.required = false;
+        inputCustom.focus();
+    } else if (selectPlano.value) {
+        // Plano selecionado - buscar valor
+        const opcaoSelecionada = selectPlano.selectedOptions[0];
+        const valor = parseFloat(opcaoSelecionada.dataset.valor);
+        
+        // Mostrar campos normais
+        inputCustom.style.display = 'none';
+        inputCustom.required = false;
+        valorInput.style.display = 'block';
+        valorCustomInput.style.display = 'none';
+        valorCustomInput.required = false;
+        valorInput.required = true;
+        
+        // Definir valor base
+        valorInput.value = valor;
+        calcularValorTotal();
+    } else {
+        // Nenhum plano selecionado
+        inputCustom.style.display = 'none';
+        inputCustom.required = false;
+        valorInput.style.display = 'block';
+        valorCustomInput.style.display = 'none';
+        valorCustomInput.required = false;
+        valorInput.required = true;
+        valorInput.value = '';
+    }
+}
+
+function calcularValorTotal() {
+    const selectPlano = document.getElementById('venda-plano');
+    const valorInput = document.getElementById('venda-valor');
+    const valorCustomInput = document.getElementById('venda-valor-custom');
+    const ipFixoCheck = document.getElementById('venda-ip-fixo');
+    
+    let valorBase = 0;
+    
+    if (selectPlano.value === 'custom') {
+        valorBase = parseFloat(valorCustomInput.value) || 0;
+    } else if (selectPlano.value) {
+        const opcaoSelecionada = selectPlano.selectedOptions[0];
+        valorBase = parseFloat(opcaoSelecionada.dataset.valor) || 0;
+    }
+    
+    // Adicionar IP Fixo se marcado
+    if (ipFixoCheck.checked) {
+        valorBase += 50.00;
+    }
+    
+    // Atualizar campo de valor
+    if (selectPlano.value !== 'custom') {
+        valorInput.value = valorBase.toFixed(2);
+    }
+}
+
+function salvarNovoPlano(nome, valor) {
+    // Verificar se já existe
+    const planoExistente = planosDisponiveis.find(p => p.nome.toLowerCase() === nome.toLowerCase());
+    if (planoExistente) {
+        showMessage(`Plano "${nome}" já existe!`, 'warning');
+        return false;
+    }
+    
+    // Adicionar novo plano
+    planosDisponiveis.push({
+        nome: nome,
+        valor: parseFloat(valor)
+    });
+    
+    // Recarregar select
+    carregarPlanosNoSelect();
+    
+    // Selecionar o novo plano
+    const selectPlano = document.getElementById('venda-plano');
+    selectPlano.value = nome;
+    atualizarValorPlano();
+    
+    showMessage(`Plano "${nome}" criado com sucesso!`, 'success');
+    return true;
 }
 
 // Utility Functions
