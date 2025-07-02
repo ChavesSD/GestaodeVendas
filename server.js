@@ -174,7 +174,7 @@ app.get('/api/debug/status', async (req, res) => {
 });
 
 // ROTA TEMPORÁRIA - Excluir TODOS os vendedores do banco
-app.delete('/api/debug/limpar-todos-vendedores', async (req, res) => {
+app.get('/api/debug/limpar-todos-vendedores', async (req, res) => {
     try {
         if (usandoMongoDB) {
             const vendedoresExcluidos = await Vendedor.deleteMany({});
