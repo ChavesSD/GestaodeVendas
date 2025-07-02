@@ -360,10 +360,17 @@ async function handleVendedorSubmit(e) {
     };
     
     try {
-        await apiRequest('/vendedores', {
+        console.log('📤 Enviando dados do vendedor:', {
+            ...formData,
+            senha: '[REDACTED]'
+        });
+        
+        const response = await apiRequest('/vendedores', {
             method: 'POST',
             body: JSON.stringify(formData)
         });
+        
+        console.log('✅ Vendedor criado com sucesso:', response);
         
         closeModals();
         loadVendedores();
@@ -371,19 +378,42 @@ async function handleVendedorSubmit(e) {
         
         alert('Vendedor cadastrado com sucesso!');
     } catch (error) {
-        console.error('Erro ao cadastrar vendedor:', error);
-        alert('Erro ao cadastrar vendedor: ' + error.message);
+        console.error('❌ Erro detalhado ao cadastrar vendedor:', error);
+        
+        // Tratar diferentes tipos de erro
+        if (error.message.includes('Email já cadastrado')) {
+            alert('❌ Este email já está cadastrado!');
+        } else if (error.message.includes('Telefone deve ter um formato válido')) {
+            alert('❌ Telefone inválido! Use formato: (11) 99999-9999');
+        } else if (error.message.includes('Dados inválidos')) {
+            alert('❌ Dados inválidos. Verifique todos os campos.');
+        } else if (error.message.includes('Senha deve conter')) {
+            alert('❌ Senha deve ter maiúscula, minúscula e número.');
+        } else {
+            alert('❌ Erro ao cadastrar vendedor: ' + error.message);
+        }
     }
 }
 
 async function excluirVendedor(vendedorId) {
-    if (!confirm('Tem certeza que deseja excluir este vendedor? Todas as vendas também serão removidas.')) {
+    const vendedor = vendedores.find(v => v.id === vendedorId);
+    const nomeVendedor = vendedor ? vendedor.nome : 'vendedor';
+    
+    if (!confirm(`Tem certeza que deseja excluir ${nomeVendedor}? Todas as vendas também serão removidas.`)) {
+        return;
+    }
+    
+    // Solicitar senha para confirmação
+    const senha = prompt(`Digite a senha de ${nomeVendedor} para confirmar a exclusão:`);
+    if (!senha) {
+        alert('Exclusão cancelada - senha é obrigatória.');
         return;
     }
     
     try {
         await apiRequest(`/vendedores/${vendedorId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            body: JSON.stringify({ senha: senha })
         });
         
         loadVendedores();
@@ -392,6 +422,11 @@ async function excluirVendedor(vendedorId) {
         alert('Vendedor excluído com sucesso!');
     } catch (error) {
         console.error('Erro ao excluir vendedor:', error);
+        if (error.message.includes('Senha incorreta')) {
+            alert('Erro: Senha incorreta!');
+        } else {
+            alert('Erro ao excluir vendedor: ' + error.message);
+        }
     }
 }
 

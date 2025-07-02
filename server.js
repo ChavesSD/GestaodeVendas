@@ -295,8 +295,8 @@ app.post('/api/vendedores', [
         .withMessage('Nome deve ter entre 2 e 100 caracteres'),
     body('email').isEmail().normalizeEmail()
         .withMessage('Email deve ter um formato válido'),
-    body('telefone').isMobilePhone('pt-BR')
-        .withMessage('Telefone deve ter um formato válido'),
+    body('telefone').isLength({ min: 10, max: 15 }).matches(/^[\d\s\(\)\-\+]+$/)
+        .withMessage('Telefone deve conter entre 10 e 15 dígitos'),
     body('senha').isLength({ min: 6, max: 128 })
         .withMessage('Senha deve ter entre 6 e 128 caracteres')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
@@ -482,13 +482,26 @@ app.post('/api/vendedores/login', [
     }
 });
 
-app.delete('/api/vendedores/:id', async (req, res) => {
+// Rota para exclusão de vendedor com confirmação de senha
+app.delete('/api/vendedores/:id', [
+    body('senha').isLength({ min: 1 }).withMessage('Senha é obrigatória para exclusão'),
+    handleValidationErrors
+], async (req, res) => {
     try {
+        const { senha } = req.body;
+        
         if (usandoMongoDB) {
             // Usar MongoDB
             const vendedor = await Vendedor.findOne({ id: req.params.id });
             if (!vendedor) {
                 return res.status(404).json({ error: 'Vendedor não encontrado' });
+            }
+            
+            // Verificar senha do vendedor
+            const senhaValida = await bcrypt.compare(senha, vendedor.senha);
+            if (!senhaValida) {
+                console.log(`Tentativa de exclusão com senha incorreta - Vendedor: ${req.params.id}`);
+                return res.status(401).json({ error: 'Senha incorreta' });
             }
             
             // Marcar vendedor como inativo (soft delete)
@@ -501,19 +514,30 @@ app.delete('/api/vendedores/:id', async (req, res) => {
                 { ativo: false }
             );
             
-            console.log(`Vendedor ${req.params.id} marcado como inativo`);
+            console.log(`Vendedor ${req.params.id} excluído com sucesso`);
             res.status(204).send();
             
         } else {
             // Fallback para dados em memória
+            const vendedor = vendedores.find(v => v.id === req.params.id);
+            if (!vendedor) {
+                return res.status(404).json({ error: 'Vendedor não encontrado' });
+            }
+            
+            // Verificar senha do vendedor
+            const senhaValida = await bcrypt.compare(senha, vendedor.senha);
+            if (!senhaValida) {
+                console.log(`Tentativa de exclusão com senha incorreta - Vendedor: ${req.params.id}`);
+                return res.status(401).json({ error: 'Senha incorreta' });
+            }
+            
             const index = vendedores.findIndex(v => v.id === req.params.id);
             if (index !== -1) {
                 vendedores.splice(index, 1);
                 // Remover também as vendas deste vendedor
                 vendas = vendas.filter(venda => venda.vendedorId !== req.params.id);
+                console.log(`Vendedor ${req.params.id} excluído com sucesso`);
                 res.status(204).send();
-            } else {
-                res.status(404).json({ error: 'Vendedor não encontrado' });
             }
         }
     } catch (error) {
