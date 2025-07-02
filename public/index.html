@@ -297,6 +297,9 @@
                                 <option value="custom">🆕 Criar Novo Plano</option>
                             </select>
                             <input type="text" id="venda-plano-custom" placeholder="Digite o nome do novo plano" style="display: none;">
+                            <button type="button" id="btn-gerenciar-planos" class="btn btn-secondary btn-sm" onclick="abrirGerenciamentoPlanos()">
+                                <i class="fas fa-cog"></i> Gerenciar Planos
+                            </button>
                         </div>
                     </div>
                     <div class="form-group">
@@ -366,6 +369,50 @@
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para Gerenciar Planos -->
+    <div id="modal-gerenciar-planos" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Gerenciar Planos</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="planos-lista">
+                <div class="planos-header">
+                    <h4>Planos Disponíveis</h4>
+                    <p>Clique em "Editar" para modificar um plano existente</p>
+                </div>
+                <div id="lista-planos-container">
+                    <!-- Lista de planos será carregada aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Plano -->
+    <div id="modal-editar-plano" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="titulo-editar-plano">Editar Plano</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="form-editar-plano">
+                <input type="hidden" id="plano-index">
+                <div class="form-group">
+                    <label for="plano-nome-edit">Nome do Plano:</label>
+                    <input type="text" id="plano-nome-edit" required>
+                </div>
+                <div class="form-group">
+                    <label for="plano-valor-edit">Valor (R$):</label>
+                    <input type="number" id="plano-valor-edit" step="0.01" min="0" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                 </div>
             </form>
         </div>

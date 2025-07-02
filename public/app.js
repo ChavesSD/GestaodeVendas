@@ -33,7 +33,9 @@ const navButtons = {
 const modals = {
     vendedor: document.getElementById('modal-vendedor'),
     loginVendedor: document.getElementById('modal-login-vendedor'),
-    venda: document.getElementById('modal-venda')
+    venda: document.getElementById('modal-venda'),
+    gerenciarPlanos: document.getElementById('modal-gerenciar-planos'),
+    editarPlano: document.getElementById('modal-editar-plano')
 };
 
 // Inicialização da aplicação
@@ -79,6 +81,7 @@ function setupEventListeners() {
     document.getElementById('form-vendedor').addEventListener('submit', handleVendedorSubmit);
     document.getElementById('form-login-vendedor').addEventListener('submit', handleLoginVendedor);
     document.getElementById('form-venda').addEventListener('submit', handleVendaSubmit);
+    document.getElementById('form-editar-plano').addEventListener('submit', handleEditarPlanoSubmit);
     
     // Consultas API
     document.getElementById('btn-consultar-cnpj').addEventListener('click', consultarCNPJ);
@@ -1022,6 +1025,114 @@ function salvarNovoPlano(nome, valor) {
     
     showMessage(`Plano "${nome}" criado com sucesso!`, 'success');
     return true;
+}
+
+// Funções de Gerenciamento de Planos
+function abrirGerenciamentoPlanos() {
+    renderizarListaPlanos();
+    modals.gerenciarPlanos.classList.add('active');
+}
+
+function renderizarListaPlanos() {
+    const container = document.getElementById('lista-planos-container');
+    
+    if (planosDisponiveis.length === 0) {
+        container.innerHTML = `
+            <div class="planos-vazio">
+                <p>Nenhum plano cadastrado.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = planosDisponiveis.map((plano, index) => `
+        <div class="plano-item">
+            <div class="plano-info">
+                <div class="plano-nome">${plano.nome}</div>
+                <div class="plano-valor">R$ ${formatCurrency(plano.valor)}</div>
+            </div>
+            <div class="plano-acoes">
+                <button class="btn-editar-plano" onclick="editarPlano(${index})">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn-excluir-plano" onclick="excluirPlano(${index})">
+                    <i class="fas fa-trash"></i> Excluir
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function editarPlano(index) {
+    const plano = planosDisponiveis[index];
+    
+    // Preencher formulário de edição
+    document.getElementById('plano-index').value = index;
+    document.getElementById('plano-nome-edit').value = plano.nome;
+    document.getElementById('plano-valor-edit').value = plano.valor;
+    document.getElementById('titulo-editar-plano').textContent = `Editar Plano: ${plano.nome}`;
+    
+    // Fechar modal de gerenciar e abrir modal de editar
+    modals.gerenciarPlanos.classList.remove('active');
+    modals.editarPlano.classList.add('active');
+}
+
+async function handleEditarPlanoSubmit(e) {
+    e.preventDefault();
+    
+    const index = parseInt(document.getElementById('plano-index').value);
+    const novoNome = document.getElementById('plano-nome-edit').value.trim();
+    const novoValor = parseFloat(document.getElementById('plano-valor-edit').value);
+    
+    // Validações
+    if (!novoNome || !novoValor) {
+        showMessage('Preencha todos os campos!', 'error');
+        return;
+    }
+    
+    // Verificar se novo nome já existe (exceto o próprio plano)
+    const nomeExistente = planosDisponiveis.find((p, i) => 
+        i !== index && p.nome.toLowerCase() === novoNome.toLowerCase()
+    );
+    
+    if (nomeExistente) {
+        showMessage(`Já existe um plano com o nome "${novoNome}"!`, 'warning');
+        return;
+    }
+    
+    // Salvar alterações
+    const planoAntigo = planosDisponiveis[index];
+    planosDisponiveis[index] = {
+        nome: novoNome,
+        valor: novoValor
+    };
+    
+    // Recarregar interface
+    carregarPlanosNoSelect();
+    renderizarListaPlanos();
+    
+    // Fechar modal de edição e reabrir gerenciamento
+    modals.editarPlano.classList.remove('active');
+    modals.gerenciarPlanos.classList.add('active');
+    
+    showMessage(`Plano "${planoAntigo.nome}" atualizado para "${novoNome}" com sucesso!`, 'success');
+}
+
+function excluirPlano(index) {
+    const plano = planosDisponiveis[index];
+    
+    if (!confirm(`Tem certeza que deseja excluir o plano "${plano.nome}"?`)) {
+        return;
+    }
+    
+    // Remover plano
+    planosDisponiveis.splice(index, 1);
+    
+    // Recarregar interface
+    carregarPlanosNoSelect();
+    renderizarListaPlanos();
+    
+    showMessage(`Plano "${plano.nome}" excluído com sucesso!`, 'success');
 }
 
 // Utility Functions
