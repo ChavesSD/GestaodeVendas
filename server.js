@@ -290,6 +290,58 @@ app.get('/api/vendedores', async (req, res) => {
     }
 });
 
+// ROTA TEMPORÁRIA DE DEBUG - listar todos os vendedores
+app.get('/api/debug/vendedores-todos', async (req, res) => {
+    try {
+        if (usandoMongoDB) {
+            const todosVendedores = await Vendedor.find({}).sort({ createdAt: -1 });
+            res.json(todosVendedores.map(v => ({
+                id: v.id,
+                nome: v.nome,
+                email: v.email,
+                ativo: v.ativo,
+                createdAt: v.createdAt
+            })));
+        } else {
+            res.json(vendedores.map(v => ({
+                id: v.id,
+                nome: v.nome,
+                email: v.email,
+                ativo: v.ativo || 'undefined'
+            })));
+        }
+    } catch (error) {
+        console.error('❌ Erro ao buscar todos vendedores:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ROTA TEMPORÁRIA DE DEBUG - listar todos os vendedores
+app.get('/api/debug/vendedores-todos', async (req, res) => {
+    try {
+        if (usandoMongoDB) {
+            const todosVendedores = await Vendedor.find({}).sort({ createdAt: -1 });
+            res.json(todosVendedores.map(v => ({
+                id: v.id,
+                nome: v.nome,
+                email: v.email,
+                ativo: v.ativo,
+                createdAt: v.createdAt
+            })));
+        } else {
+            res.json(vendedores.map(v => ({
+                id: v.id,
+                nome: v.nome,
+                email: v.email,
+                ativo: v.ativo || 'undefined'
+            })));
+        }
+    } catch (error) {
+        console.error('❌ Erro ao buscar todos vendedores:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/vendedores', [
     body('nome').isLength({ min: 2, max: 100 }).trim().escape()
         .withMessage('Nome deve ter entre 2 e 100 caracteres'),
