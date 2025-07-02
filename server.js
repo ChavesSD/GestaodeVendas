@@ -786,8 +786,14 @@ app.get('/api/dashboard/:vendedorId', async (req, res) => {
                     ticketMedio: 0,
                     conectados: 0,
                     pendentes: 0,
-                    andamento: 0,
+                    infra: 0,
                     cancelados: 0,
+                    vendasPorStatus: {
+                        'CONECTADO': 0,
+                        'PENDENTE': 0,
+                        'INFRA': 0,
+                        'CANCELADO': 0
+                    },
                     periodo: mes || 'todos'
                 });
             }
@@ -799,8 +805,14 @@ app.get('/api/dashboard/:vendedorId', async (req, res) => {
                 ticketMedio: result.ticketMedio,
                 conectados: result.conectados,
                 pendentes: result.pendentes,
-                andamento: result.andamento,
+                infra: result.infra,
                 cancelados: result.cancelados,
+                vendasPorStatus: {
+                    'CONECTADO': result.conectados,
+                    'PENDENTE': result.pendentes,
+                    'INFRA': result.infra,
+                    'CANCELADO': result.cancelados
+                },
                 periodo: mes || 'todos'
             });
             
@@ -867,7 +879,7 @@ app.get('/api/dashboard-geral', async (req, res) => {
                 conectados: result.conectados,
                 pendentes: result.pendentes,
                 cancelados: result.cancelados,
-                infra: result.andamento,
+                infra: result.infra,
                 vendedoresAtivos: result.vendedoresAtivos,
                 periodo: mes || 'todos'
             });

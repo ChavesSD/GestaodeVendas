@@ -830,9 +830,9 @@ function renderHomeStats(data) {
     if (!statsContainer) return;
 
     const stats = [
-        { icon: '👥', label: 'Vendedores Ativos', value: data.vendedores || 0, class: 'total' },
-        { icon: '🛒', label: 'Total de Vendas', value: data.vendas || 0, class: 'revenue' },
-        { icon: '💰', label: 'Faturamento Total', value: formatCurrency(data.faturamento || 0), class: 'average' },
+        { icon: '👥', label: 'Vendedores Ativos', value: data.totalVendedores || 0, class: 'total' },
+        { icon: '🛒', label: 'Total de Vendas', value: data.totalVendas || 0, class: 'revenue' },
+        { icon: '💰', label: 'Faturamento Total', value: formatCurrency(data.valorTotal || 0), class: 'average' },
         { icon: '📈', label: 'Ticket Médio', value: formatCurrency(data.ticketMedio || 0), class: 'connected' },
         { icon: '✅', label: 'Conectados', value: data.conectados || 0, class: 'pending' },
         { icon: '⏰', label: 'Pendentes', value: data.pendentes || 0, class: 'infra' },
