@@ -148,36 +148,54 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Rota de debug para verificar status do MongoDB
+// Rota de debug para verificar status do sistema
 app.get('/api/debug/status', async (req, res) => {
     try {
-        const status = {
-            usandoMongoDB: usandoMongoDB,
-            mongoDBStatus: 'disconnected',
+        let vendedoresMongoDB = 0;
+        let vendasMongoDB = 0;
+        
+        if (usandoMongoDB) {
+            vendedoresMongoDB = await Vendedor.countDocuments({});
+            vendasMongoDB = await Venda.countDocuments({});
+        }
+        
+        res.json({
+            usandoMongoDB,
+            mongoDBStatus: usandoMongoDB ? 'connected' : 'not_connected',
             vendedoresMemoria: vendedores.length,
             vendasMemoria: vendas.length,
-            vendedoresMongoDB: 0,
-            vendasMongoDB: 0
-        };
-
-        if (usandoMongoDB) {
-            try {
-                // Verificar conexão
-                const mongooseStatus = mongoose.connection.readyState;
-                status.mongoDBStatus = mongooseStatus === 1 ? 'connected' : 'disconnected';
-                
-                // Contar documentos no MongoDB
-                if (mongooseStatus === 1) {
-                    status.vendedoresMongoDB = await Vendedor.countDocuments();
-                    status.vendasMongoDB = await Venda.countDocuments();
-                }
-            } catch (error) {
-                status.mongoError = error.message;
-            }
-        }
-
-        res.json(status);
+            vendedoresMongoDB,
+            vendasMongoDB
+        });
     } catch (error) {
+        console.error('Erro ao verificar status:', error);
+        res.status(500).json({ error: 'Erro ao verificar status' });
+    }
+});
+
+// ROTA TEMPORÁRIA - Excluir TODOS os vendedores do banco
+app.delete('/api/debug/limpar-todos-vendedores', async (req, res) => {
+    try {
+        if (usandoMongoDB) {
+            const vendedoresExcluidos = await Vendedor.deleteMany({});
+            const vendasExcluidas = await Venda.deleteMany({});
+            
+            res.json({
+                message: 'Banco limpo com sucesso!',
+                vendedoresExcluidos: vendedoresExcluidos.deletedCount,
+                vendasExcluidas: vendasExcluidas.deletedCount
+            });
+        } else {
+            vendedores.length = 0;
+            vendas.length = 0;
+            res.json({
+                message: 'Dados em memória limpos!',
+                vendedoresExcluidos: 0,
+                vendasExcluidas: 0
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao limpar banco:', error);
         res.status(500).json({ error: error.message });
     }
 });
