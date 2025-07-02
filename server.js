@@ -316,63 +316,6 @@ app.get('/api/debug/vendedores-todos', async (req, res) => {
     }
 });
 
-// ROTA TEMPORÁRIA DE DEBUG - listar todos os vendedores
-app.get('/api/debug/vendedores-todos', async (req, res) => {
-    try {
-        if (usandoMongoDB) {
-            const todosVendedores = await Vendedor.find({}).sort({ createdAt: -1 });
-            res.json(todosVendedores.map(v => ({
-                id: v.id,
-                nome: v.nome,
-                email: v.email,
-                ativo: v.ativo,
-                createdAt: v.createdAt
-            })));
-        } else {
-            res.json(vendedores.map(v => ({
-                id: v.id,
-                nome: v.nome,
-                email: v.email,
-                ativo: v.ativo || 'undefined'
-            })));
-        }
-    } catch (error) {
-        console.error('❌ Erro ao buscar todos vendedores:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ROTA PARA REATIVAR VENDEDOR INATIVO
-app.patch('/api/debug/reativar-vendedor/:email', async (req, res) => {
-    try {
-        if (usandoMongoDB) {
-            const vendedor = await Vendedor.findOneAndUpdate(
-                { email: req.params.email },
-                { ativo: true },
-                { new: true }
-            );
-            
-            if (!vendedor) {
-                return res.status(404).json({ error: 'Vendedor não encontrado' });
-            }
-            
-            res.json({ 
-                message: 'Vendedor reativado com sucesso!',
-                vendedor: {
-                    id: vendedor.id,
-                    nome: vendedor.nome,
-                    email: vendedor.email,
-                    ativo: vendedor.ativo
-                }
-            });
-        } else {
-            res.status(400).json({ error: 'Funcionalidade apenas para MongoDB' });
-        }
-    } catch (error) {
-        console.error('❌ Erro ao reativar vendedor:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
 
 app.post('/api/vendedores', [
     body('nome').isLength({ min: 2, max: 100 }).trim().escape()
@@ -588,15 +531,12 @@ app.delete('/api/vendedores/:id', [
                 return res.status(401).json({ error: 'Senha incorreta' });
             }
             
-            // Marcar vendedor como inativo (soft delete)
-            vendedor.ativo = false;
-            await vendedor.save();
+            // Excluir vendas do vendedor primeiro (hard delete)
+            const vendasExcluidas = await Venda.deleteMany({ vendedorId: req.params.id });
+            console.log(`${vendasExcluidas.deletedCount} vendas excluídas para o vendedor ${req.params.id}`);
             
-            // Marcar vendas como inativas também
-            await Venda.updateMany(
-                { vendedorId: req.params.id }, 
-                { ativo: false }
-            );
+            // Excluir vendedor definitivamente (hard delete)
+            await Vendedor.deleteOne({ id: req.params.id });
             
             console.log(`Vendedor ${req.params.id} excluído com sucesso`);
             res.status(204).send();
@@ -726,37 +666,89 @@ app.post('/api/vendas', async (req, res) => {
     }
 });
 
-app.put('/api/vendas/:id', (req, res) => {
-    const index = vendas.findIndex(v => v.id === req.params.id);
-    if (index !== -1) {
-        vendas[index] = {
-            ...vendas[index],
-            codigo: req.body.codigo,
-            nomeCompleto: req.body.nomeCompleto,
-            cpfCnpj: req.body.cpfCnpj,
-            dataNascimento: req.body.dataNascimento,
-            planoNegociado: req.body.planoNegociado,
-            contato: req.body.contato,
-            endereco: req.body.endereco,
-            valor: parseFloat(req.body.valor),
-            dataVenda: req.body.dataVenda,
-            dataInstalacao: req.body.dataInstalacao,
-            status: req.body.status,
-            observacoes: req.body.observacoes
-        };
-        res.json(vendas[index]);
-    } else {
-        res.status(404).json({ error: 'Venda não encontrada' });
+app.put('/api/vendas/:id', async (req, res) => {
+    try {
+        if (usandoMongoDB) {
+            // Usar MongoDB - atualização
+            const vendaAtualizada = await Venda.findOneAndUpdate(
+                { id: req.params.id },
+                {
+                    cliente: req.body.nomeCompleto,
+                    cpfCnpj: req.body.cpfCnpj,
+                    telefone: req.body.contato,
+                    endereco: req.body.endereco,
+                    produto: req.body.planoNegociado,
+                    valor: parseFloat(req.body.valor),
+                    dataVenda: req.body.dataVenda,
+                    status: req.body.status,
+                    observacoes: req.body.observacoes
+                },
+                { new: true }
+            );
+            
+            if (!vendaAtualizada) {
+                return res.status(404).json({ error: 'Venda não encontrada' });
+            }
+            
+            console.log(`Venda ${req.params.id} atualizada com sucesso`);
+            res.json(vendaAtualizada);
+            
+        } else {
+            // Fallback para dados em memória
+            const index = vendas.findIndex(v => v.id === req.params.id);
+            if (index !== -1) {
+                vendas[index] = {
+                    ...vendas[index],
+                    codigo: req.body.codigo,
+                    nomeCompleto: req.body.nomeCompleto,
+                    cpfCnpj: req.body.cpfCnpj,
+                    dataNascimento: req.body.dataNascimento,
+                    planoNegociado: req.body.planoNegociado,
+                    contato: req.body.contato,
+                    endereco: req.body.endereco,
+                    valor: parseFloat(req.body.valor),
+                    dataVenda: req.body.dataVenda,
+                    dataInstalacao: req.body.dataInstalacao,
+                    status: req.body.status,
+                    observacoes: req.body.observacoes
+                };
+                res.json(vendas[index]);
+            } else {
+                res.status(404).json({ error: 'Venda não encontrada' });
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar venda:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
 
-app.delete('/api/vendas/:id', (req, res) => {
-    const index = vendas.findIndex(v => v.id === req.params.id);
-    if (index !== -1) {
-        vendas.splice(index, 1);
-        res.status(204).send();
-    } else {
-        res.status(404).json({ error: 'Venda não encontrada' });
+app.delete('/api/vendas/:id', async (req, res) => {
+    try {
+        if (usandoMongoDB) {
+            // Usar MongoDB - exclusão definitiva
+            const vendaExcluida = await Venda.deleteOne({ id: req.params.id });
+            
+            if (vendaExcluida.deletedCount === 0) {
+                return res.status(404).json({ error: 'Venda não encontrada' });
+            }
+            
+            console.log(`Venda ${req.params.id} excluída com sucesso`);
+            res.status(204).send();
+            
+        } else {
+            // Fallback para dados em memória
+            const index = vendas.findIndex(v => v.id === req.params.id);
+            if (index !== -1) {
+                vendas.splice(index, 1);
+                res.status(204).send();
+            } else {
+                res.status(404).json({ error: 'Venda não encontrada' });
+            }
+        }
+    } catch (error) {
+        console.error('Erro ao excluir venda:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
 
