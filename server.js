@@ -342,6 +342,38 @@ app.get('/api/debug/vendedores-todos', async (req, res) => {
     }
 });
 
+// ROTA PARA REATIVAR VENDEDOR INATIVO
+app.patch('/api/debug/reativar-vendedor/:email', async (req, res) => {
+    try {
+        if (usandoMongoDB) {
+            const vendedor = await Vendedor.findOneAndUpdate(
+                { email: req.params.email },
+                { ativo: true },
+                { new: true }
+            );
+            
+            if (!vendedor) {
+                return res.status(404).json({ error: 'Vendedor não encontrado' });
+            }
+            
+            res.json({ 
+                message: 'Vendedor reativado com sucesso!',
+                vendedor: {
+                    id: vendedor.id,
+                    nome: vendedor.nome,
+                    email: vendedor.email,
+                    ativo: vendedor.ativo
+                }
+            });
+        } else {
+            res.status(400).json({ error: 'Funcionalidade apenas para MongoDB' });
+        }
+    } catch (error) {
+        console.error('❌ Erro ao reativar vendedor:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 app.post('/api/vendedores', [
     body('nome').isLength({ min: 2, max: 100 }).trim().escape()
         .withMessage('Nome deve ter entre 2 e 100 caracteres'),
