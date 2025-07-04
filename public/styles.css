@@ -621,6 +621,26 @@ body::before {
 /* Table */
 .table-container {
     overflow-x: auto;
+    padding-bottom: 1rem;
+    border-radius: 8px;
+}
+
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 }
 
 .data-table {
@@ -630,6 +650,8 @@ body::before {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    table-layout: fixed;
+    min-width: 1200px;
 }
 
 .data-table th,
@@ -637,7 +659,20 @@ body::before {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
+
+/* Definir larguras específicas para cada coluna */
+.data-table th:nth-child(1), .data-table td:nth-child(1) { width: 10%; } /* Código */
+.data-table th:nth-child(2), .data-table td:nth-child(2) { width: 20%; } /* Cliente */
+.data-table th:nth-child(3), .data-table td:nth-child(3) { width: 15%; } /* CPF/CNPJ */
+.data-table th:nth-child(4), .data-table td:nth-child(4) { width: 20%; } /* Plano */
+.data-table th:nth-child(5), .data-table td:nth-child(5) { width: 10%; } /* Valor */
+.data-table th:nth-child(6), .data-table td:nth-child(6) { width: 10%; } /* Data Venda */
+.data-table th:nth-child(7), .data-table td:nth-child(7) { width: 10%; } /* Status */
+.data-table th:nth-child(8), .data-table td:nth-child(8) { width: 15%; } /* Ações */
 
 .data-table th {
     background: #f8f9fa;
@@ -647,6 +682,26 @@ body::before {
 
 .data-table tbody tr:hover {
     background: #f8f9fa;
+}
+
+/* Estilo específico para coluna de ações */
+.data-table td:nth-child(8) {
+    padding: 0.5rem;
+}
+
+.data-table td:nth-child(8) .btn {
+    padding: 0.5rem;
+    margin: 0.2rem;
+    min-width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.data-table td:nth-child(8) .btn i {
+    font-size: 0.9rem;
+    margin: 0;
 }
 
 .status-badge {
@@ -910,6 +965,24 @@ form {
     .dashboard-stats {
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+    }
+    
+    /* Ajustes para tabela em dispositivos móveis */
+    .data-table {
+        min-width: 800px;
+        font-size: 0.85rem;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .data-table td:nth-child(8) .btn {
+        min-width: 30px;
+        height: 30px;
+        padding: 0.3rem;
+        margin: 0.1rem;
     }
 
     @media (max-width: 480px) {
