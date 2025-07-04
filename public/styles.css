@@ -300,6 +300,18 @@ body::before {
     background: linear-gradient(135deg, #fab005 0%, #f59f00 100%);
 }
 
+.btn-success {
+    background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+    background: linear-gradient(135deg, #128c7e 0%, #075e54 100%);
+}
+
 .btn-sm {
     padding: 0.625rem 1.25rem;
     font-size: 0.8rem;

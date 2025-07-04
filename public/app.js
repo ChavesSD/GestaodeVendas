@@ -701,7 +701,7 @@ function renderVendasTable() {
     if (vendas.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: 2rem; color: #666;">
+                <td colspan="9" style="text-align: center; padding: 2rem; color: #666;">
                     Nenhuma venda registrada para este vendedor${filtroMesAtivo ? ' no período selecionado' : ''}
                 </td>
             </tr>
@@ -723,6 +723,9 @@ function renderVendasTable() {
                 </span>
             </td>
             <td>
+                <button class="btn btn-success" onclick="enviarWhatsApp('${venda.contato}', '${escapeHtml(venda.nomeCompleto)}')" style="margin-right: 0.5rem;" title="Enviar WhatsApp">
+                    <i class="fab fa-whatsapp"></i>
+                </button>
                 <button class="btn btn-warning" onclick="editarVenda('${venda.id}')" style="margin-right: 0.5rem;">
                     <i class="fas fa-edit"></i>
                 </button>
@@ -1396,6 +1399,7 @@ window.abrirDashboard = abrirDashboard;
 window.excluirVendedor = excluirVendedor;
 window.editarVenda = editarVenda;
 window.excluirVenda = excluirVenda;
+window.enviarWhatsApp = enviarWhatsApp;
 
 // Função de segurança para escapar HTML e prevenir XSS
 function escapeHtml(unsafe) {
@@ -1430,4 +1434,40 @@ function isStrongPassword(password) {
 function isValidBrazilianPhone(phone) {
     const phoneRegex = /^(\(?\d{2}\)?\s?)?(\d{4,5}-?\d{4})$/;
     return phoneRegex.test(phone.replace(/\s/g, ''));
-} 
+}
+
+// Função para enviar mensagem no WhatsApp
+function enviarWhatsApp(telefone, nomeCliente) {
+    if (!telefone) {
+        alert('Número de telefone não cadastrado para este cliente.');
+        return;
+    }
+    
+    // Limpar o número removendo caracteres especiais
+    let numeroLimpo = telefone.replace(/\D/g, '');
+    
+    // Garantir que o número tenha o código do país (55 para Brasil)
+    if (!numeroLimpo.startsWith('55')) {
+        if (numeroLimpo.length === 10 || numeroLimpo.length === 11) {
+            numeroLimpo = '55' + numeroLimpo;
+        }
+    }
+    
+    // Validar se o número tem um formato válido
+    if (numeroLimpo.length < 12 || numeroLimpo.length > 13) {
+        alert('Número de telefone inválido. Verifique o formato.');
+        return;
+    }
+    
+    // Criar mensagem personalizada
+    const mensagem = `Olá ${nomeCliente}! 👋\n\nTemos uma atualização sobre seu plano de internet. Podemos conversar?`;
+    
+    // Codificar a mensagem para URL
+    const mensagemCodificada = encodeURIComponent(mensagem);
+    
+    // Montar URL do WhatsApp Web
+    const urlWhatsApp = `https://wa.me/${numeroLimpo}?text=${mensagemCodificada}`;
+    
+    // Abrir WhatsApp em nova aba
+    window.open(urlWhatsApp, '_blank');
+}
