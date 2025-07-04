@@ -13,6 +13,11 @@ const vendaSchema = new mongoose.Schema({
     required: [true, 'ID do vendedor é obrigatório'],
     index: true
   },
+  codigo: {
+    type: String,
+    trim: true,
+    maxlength: [50, 'Código deve ter no máximo 50 caracteres']
+  },
   cliente: {
     type: String,
     required: [true, 'Nome do cliente é obrigatório'],

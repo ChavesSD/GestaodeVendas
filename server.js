@@ -610,7 +610,24 @@ app.get('/api/vendas/:vendedorId', async (req, res) => {
             }
             
             const vendasVendedor = await Venda.find(query).sort({ dataVenda: -1 });
-            res.json(vendasVendedor);
+            
+            // Mapear campos do MongoDB para os nomes esperados pelo frontend
+            const vendasMapeadas = vendasVendedor.map(venda => ({
+                id: venda.id,
+                vendedorId: venda.vendedorId,
+                codigo: venda.codigo || '',
+                nomeCompleto: venda.cliente,
+                cpfCnpj: venda.cpfCnpj,
+                planoNegociado: venda.produto,
+                contato: venda.telefone,
+                endereco: venda.endereco,
+                valor: venda.valor,
+                dataVenda: venda.dataVenda,
+                status: venda.status,
+                observacoes: venda.observacoes
+            }));
+            
+            res.json(vendasMapeadas);
             
         } else {
             // Fallback para dados em memória
@@ -633,6 +650,7 @@ app.post('/api/vendas', async (req, res) => {
             // Usar MongoDB
             const novaVenda = new Venda({
                 vendedorId: req.body.vendedorId,
+                codigo: req.body.codigo,
                 cliente: req.body.nomeCompleto,
                 cpfCnpj: req.body.cpfCnpj,
                 telefone: req.body.contato,
@@ -646,7 +664,24 @@ app.post('/api/vendas', async (req, res) => {
             
             const vendaSalva = await novaVenda.save();
             console.log('Nova venda criada no MongoDB:', vendaSalva.id);
-            res.status(201).json(vendaSalva);
+            
+            // Mapear campos para o frontend
+            const vendaMapeada = {
+                id: vendaSalva.id,
+                vendedorId: vendaSalva.vendedorId,
+                codigo: vendaSalva.codigo || '',
+                nomeCompleto: vendaSalva.cliente,
+                cpfCnpj: vendaSalva.cpfCnpj,
+                planoNegociado: vendaSalva.produto,
+                contato: vendaSalva.telefone,
+                endereco: vendaSalva.endereco,
+                valor: vendaSalva.valor,
+                dataVenda: vendaSalva.dataVenda,
+                status: vendaSalva.status,
+                observacoes: vendaSalva.observacoes
+            };
+            
+            res.status(201).json(vendaMapeada);
             
         } else {
             // Fallback para dados em memória
@@ -691,6 +726,7 @@ app.put('/api/vendas/:id', async (req, res) => {
             const vendaAtualizada = await Venda.findOneAndUpdate(
                 { id: req.params.id },
                 {
+                    codigo: req.body.codigo,
                     cliente: req.body.nomeCompleto,
                     cpfCnpj: req.body.cpfCnpj,
                     telefone: req.body.contato,
@@ -709,7 +745,24 @@ app.put('/api/vendas/:id', async (req, res) => {
             }
             
             console.log(`Venda ${req.params.id} atualizada com sucesso`);
-            res.json(vendaAtualizada);
+            
+            // Mapear campos para o frontend
+            const vendaMapeada = {
+                id: vendaAtualizada.id,
+                vendedorId: vendaAtualizada.vendedorId,
+                codigo: vendaAtualizada.codigo || '',
+                nomeCompleto: vendaAtualizada.cliente,
+                cpfCnpj: vendaAtualizada.cpfCnpj,
+                planoNegociado: vendaAtualizada.produto,
+                contato: vendaAtualizada.telefone,
+                endereco: vendaAtualizada.endereco,
+                valor: vendaAtualizada.valor,
+                dataVenda: vendaAtualizada.dataVenda,
+                status: vendaAtualizada.status,
+                observacoes: vendaAtualizada.observacoes
+            };
+            
+            res.json(vendaMapeada);
             
         } else {
             // Fallback para dados em memória
